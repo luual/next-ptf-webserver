@@ -11,6 +11,7 @@ from src.models.User import User
 from src.models.TickerModel import MiniTickerMetadata
 from src.models.Portofolio import Portfolio
 from src.grql.schemas import schema
+from src.grql.models import *
 from graphql_server.flask import GraphQLView
 from src.api.stocks import stock_route
 
@@ -22,7 +23,6 @@ app.add_url_rule(
 )
 
 app.register_blueprint(stock_route, url_prefix="/api")
-
 
 @app.route("/")
 def hello():
@@ -105,3 +105,15 @@ def get_user():
 '''
     result = schema.execute(query)
     return result.data['user']
+
+
+
+def setupdb():
+    print("Setup here")
+
+    stock = StockModel.objects.all().first()
+    stockquantity = StockQuantity(quantity=443, stock=stock._id)
+    wallet = WalletModel(userId = "qwefdasdfasdjkl2",
+                         name="auto generated wallet",
+                         stocks=[stockquantity])
+    wallet.save()
