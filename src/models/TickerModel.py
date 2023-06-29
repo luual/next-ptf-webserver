@@ -1,12 +1,22 @@
 from dataclasses import dataclass
-from .Responses import Response
-
 '''
 Message Code for ticker:
 3001: Ticker Price
 3002: Ticker OHLC Price
 '''
+@dataclass
+class Stock:
+    id: int
+    symbol: str
+    mic: str
+    figi: str
+    description: str
+    currency: str
 
+@dataclass
+class StockQuantity:
+    quantity: int
+    stockId: int
 
 @dataclass
 class MiniTickerMetadata:

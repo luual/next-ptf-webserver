@@ -14,9 +14,13 @@ def generate_historical_ticker_values(ticker_name: str, depth: int = 10) -> list
     return output
 
 
-def generate_ticker_values(ticker_name: str) -> MiniTickerResponse:
+def generate_ticker_values(ticker_name: str, last_date: datetime = None) -> MiniTickerResponse:
     rd = random.randrange(1, 9999)
-    return MiniTickerResponse(symbol=ticker_name, time=datetime.now().timestamp(), price=rd)
+    date = datetime.now()
+    if last_date is not None:
+        date = last_date + timedelta(days=1)
+    return MiniTickerResponse(symbol=ticker_name, time=date.timestamp(), price=rd)
+
 
 
 '''
@@ -37,7 +41,7 @@ def generate_historical_OHLC_ticker_values(ticker_name: str, depth: int = 10) ->
     return output
 
 
-def generate_OHLC_ticker_values(ticker_name: str, refValue: float = random.randrange(1, 9999)) -> MiniTickerOHLCResponse:
+def generate_OHLC_ticker_values(ticker_name: str, refValue: float = random.randrange(1, 9999), last_date: datetime = None) -> MiniTickerOHLCResponse:
 
     open = refValue
     delta_change = random.randrange(1,20) / 100 * refValue
@@ -45,7 +49,10 @@ def generate_OHLC_ticker_values(ticker_name: str, refValue: float = random.randr
     close = refValue + delta_change if pos_neg == 1 else refValue - delta_change
     low = min([open, close]) - delta_change * (1 - (random.randrange(1, 20) / 100))
     high = max([open, close]) + delta_change * (1 + (random.randrange(1, 20) / 100))
-    return MiniTickerOHLCResponse(symbol=ticker_name, time=datetime.now().timestamp(),
+    date = datetime.now()
+    if last_date is not None:
+        date = last_date + timedelta(days=1)
+    return MiniTickerOHLCResponse(symbol=ticker_name, time=date.timestamp(),
                                   close=close,
                                   open=open,
                                   low=low,

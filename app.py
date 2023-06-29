@@ -1,9 +1,9 @@
-# save this as app.py
 from flask import Flask
 from flask_cors import CORS
 from flask_sock import Sock
 import time
 import json
+import datetime
 from src.modules.subscription import subscribe_price
 from src.utils.Encoder import DataclassEncoder
 from src.modules.tickers import *
@@ -12,6 +12,7 @@ from src.models.TickerModel import MiniTickerMetadata
 from src.models.Portofolio import Portfolio
 from src.grql.schemas import schema
 from graphql_server.flask import GraphQLView
+from src.api.stocks import stock_route
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -19,17 +20,13 @@ CORS(app)
 app.add_url_rule(
     "/graphql", view_func=GraphQLView.as_view("graphql", schema=schema, graphiql=True)
 )
+
+app.register_blueprint(stock_route, url_prefix="/api")
+
+
 @app.route("/")
 def hello():
     return "Hello, World!"
-
-
-@sock.route("/rd")
-def random(ws):
-    while True:
-        ws.send("123")
-        time.sleep(1)
-
 
 @app.route("/user/random")
 def random_user():
@@ -44,7 +41,7 @@ def random_user():
 @app.route("/users/<id>/portfolio")
 def get_user_portfolio(id):
     return json.dumps(
-        [Portfolio(id="wqefqweqw-qweqw", userId=id, tickers=[
+        [Portfolio(id="wqefqweqw-qweqw", name="Portfolio 1", userId=id, tickers=[
             MiniTickerMetadata("Total", 123),
             MiniTickerMetadata("CA", 22),
             MiniTickerMetadata("Air Liquid", 992),
@@ -52,11 +49,10 @@ def get_user_portfolio(id):
             MiniTickerMetadata("L'Oreal", 57),
 
         ]),
-            Portfolio(id="wqfw-qweqw-q123w", userId=id, tickers=[
+            Portfolio(id="wqfw-qweqw-q123w", name="Portfolio 2", userId=id, tickers=[
                 MiniTickerMetadata("Netflix", 32),
                 MiniTickerMetadata("Meta", 73),
-                MiniTickerMetadata("Google", 35)])]
-    , cls=DataclassEncoder)
+                MiniTickerMetadata("Google", 35)])], cls=DataclassEncoder)
 
 
 @sock.route("/ticker")
@@ -71,7 +67,8 @@ def send_ticker(ws):
         ws.send(json.dumps(hdata, cls=DataclassEncoder))
     while (currentTime < sub.validTime):
         time.sleep(0.5)
-        ws.send(json.dumps(generate_ticker_values(subRequest['symbol']), cls=DataclassEncoder))
+        ws.send(json.dumps(generate_ticker_values(
+            subRequest['symbol']), cls=DataclassEncoder))
         currentTime = time.time()
     ws.close()
 
@@ -84,13 +81,27 @@ def send_ticker_ohlc(ws):
     ws.send(json.dumps(sub, cls=DataclassEncoder))
     currentTime = time.time()
     historical = generate_historical_OHLC_ticker_values(subRequest['symbol'])
-    ref_value =historical[-1].close
+    prev_ohlc = historical[-1]
     for hdata in historical:
         ws.send(json.dumps(hdata, cls=DataclassEncoder))
     while (currentTime < sub.validTime):
         time.sleep(0.5)
-        ohlc = generate_OHLC_ticker_values(subRequest['symbol'], refValue=ref_value)
+        ohlc = generate_OHLC_ticker_values(
+            subRequest['symbol'], refValue=prev_ohlc.close, last_date=datetime.fromtimestamp(prev_ohlc.time))
         ws.send(json.dumps(ohlc, cls=DataclassEncoder))
-        ref_value = ohlc.close
+        prev_ohlc = ohlc
         currentTime = time.time()
     ws.close()
+
+
+@app.route("/users/testql")
+def get_user():
+    query = '''
+    query {
+        user(name: "Bon") {    
+        id, name, userIcon
+        }
+    }
+'''
+    result = schema.execute(query)
+    return result.data['user']
