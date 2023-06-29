@@ -14,6 +14,7 @@ from src.grql.schemas import schema
 from src.grql.models import *
 from graphql_server.flask import GraphQLView
 from src.api.stocks import stock_route
+from src.api import *
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -23,6 +24,8 @@ app.add_url_rule(
 )
 
 app.register_blueprint(stock_route, url_prefix="/api")
+app.register_blueprint(wallets_route, url_prefix="/api")
+
 
 @app.route("/")
 def hello():
@@ -107,7 +110,7 @@ def get_user():
     return result.data['user']
 
 
-
+from bson import ObjectId
 def setupdb():
     print("Setup here")
 

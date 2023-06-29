@@ -26,6 +26,7 @@ class StockQuantity(MongoengineObjectType):
         interfaces = (Node,)
 
     quantity = graphene.Int()
+    Stock = Stock
 
 class Wallet(MongoengineObjectType):
     class Meta:
@@ -40,16 +41,18 @@ def resolve_wallet(wallet_id):
 
     for stock_quantity in wallet.stocks:
         try:
-            stock = StockModel.objects.get(_id=stock_quantity.stock._id)
+            print("StockId:", stock_quantity.stock.description)
+            stock = StockModel.objects.get(_id=ObjectId(stock_quantity.stock._id))
             stocks.append(StockQuantity(quantity=stock_quantity.quantity, stock=stock))
         except DoesNotExist:
             print("error does not exists")
-    return Wallet(
+    wallet =  Wallet(
         _id=str(wallet._id),
         userId=wallet.userId,
         name=wallet.name,
         stocks=stocks,
     )
+    return wallet
 
 class Query(graphene.ObjectType):
     users = graphene.List(User)
@@ -66,7 +69,23 @@ class Query(graphene.ObjectType):
     node = Node.Field()
 
     def resolve_wallet_by_id(root, info, wallet_id):
-        return resolve_wallet(wallet_id=wallet_id)
+        wallet = WalletModel.objects.filter(_id=ObjectId(wallet_id)).first()
+        stocks = []
+
+        for stock_quantity in wallet.stocks:
+            try:
+                if stock_quantity.stock:
+                    print(stock_quantity.stock.description)
+                    stocks.append(StockQuantity(quantity=stock_quantity.quantity, stock=stock_quantity.stock))
+            except DoesNotExist:
+                print("error does not exists")
+        wallet =  Wallet(
+            _id=str(wallet._id),
+            userId=wallet.userId,
+            name=wallet.name,
+            stocks=stocks,
+        )
+        return wallet
     
     def resolve_stock_by_id(self, info, stock_id):
         try:
@@ -89,7 +108,6 @@ class Query(graphene.ObjectType):
         walletModels = WalletModel.objects.all()
         return [resolve_wallet(wallet._id) for wallet in walletModels]
 
-    
     def resolve_wallet(self, info, userId):
         return list(WalletModel.objects.filter(userId=userId))  
 
