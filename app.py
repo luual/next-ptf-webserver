@@ -7,7 +7,6 @@ import datetime
 from src.modules.subscription import subscribe_price
 from src.utils.Encoder import DataclassEncoder
 from src.modules.tickers import *
-from src.models.User import User
 from src.models.TickerModel import MiniTickerMetadata
 from src.models.Portofolio import Portfolio
 from src.grql.schemas import schema
@@ -23,23 +22,23 @@ app.add_url_rule(
     "/graphql", view_func=GraphQLView.as_view("graphql", schema=schema, graphiql=True)
 )
 
-app.register_blueprint(stock_route, url_prefix="/api")
+# app.register_blueprint(stock_route, url_prefix="/api")
 app.register_blueprint(wallets_route, url_prefix="/api")
+# from src.routes.user import USER_BLUEPRINT
+# from src.routes.stock import STOCKS_BLUEPRINT
+# app.register_blueprint(USER_BLUEPRINT, url_prefix="/api")
+# app.register_blueprint(STOCKS_BLUEPRINT, url_prefix="/api")
+
+import src.routes
+
+for blueprint in vars(src.routes).values():
+    if isinstance(blueprint, Blueprint):
+        app.register_blueprint(blueprint, url_prefix="/api")
 
 
 @app.route("/")
 def hello():
     return "Hello, World!"
-
-@app.route("/user/random")
-def random_user():
-    return json.dumps(User(
-        id="a349204d-5d58-4b48-bfb6-fb7fbd7ae103",
-        name='Tom',
-        lastname='Jerry',
-        userIcon="https://images.unsplash.com/photo-1685972215665-80580c58e4ee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2097&q=80"
-    ), cls=DataclassEncoder)
-
 
 @app.route("/users/<id>/portfolio")
 def get_user_portfolio(id):
@@ -50,7 +49,6 @@ def get_user_portfolio(id):
             MiniTickerMetadata("Air Liquid", 992),
             MiniTickerMetadata("LVMH", 1248),
             MiniTickerMetadata("L'Oreal", 57),
-
         ]),
             Portfolio(id="wqfw-qweqw-q123w", name="Portfolio 2", userId=id, tickers=[
                 MiniTickerMetadata("Netflix", 32),
@@ -96,27 +94,3 @@ def send_ticker_ohlc(ws):
         currentTime = time.time()
     ws.close()
 
-
-@app.route("/users/testql")
-def get_user():
-    query = '''
-    query {
-        user(name: "Bon") {    
-        id, name, userIcon
-        }
-    }
-'''
-    result = schema.execute(query)
-    return result.data['user']
-
-
-from bson import ObjectId
-def setupdb():
-    print("Setup here")
-
-    stock = StockModel.objects.all().first()
-    stockquantity = StockQuantity(quantity=443, stock=stock._id)
-    wallet = WalletModel(userId = "qwefdasdfasdjkl2",
-                         name="auto generated wallet",
-                         stocks=[stockquantity])
-    wallet.save()
