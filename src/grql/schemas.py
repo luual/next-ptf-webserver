@@ -6,8 +6,10 @@ from mongoengine import connect, DoesNotExist
 from .models import *
 from bson import ObjectId
 from builtins import str
+from src.config import appConfig
 
-connect(db="portfolio-next", host="192.168.0.14:32770")
+
+connect(db="portfolio-next", host=appConfig.databaseUrl)
 
 
 class User(MongoengineObjectType):
@@ -50,6 +52,7 @@ def resolve_wallet(wallet_id):
         _id=str(wallet._id),
         userId=wallet.userId,
         name=wallet.name,
+        cash=wallet.cash,
         stocks=stocks,
     )
     return wallet
@@ -82,6 +85,7 @@ class Query(graphene.ObjectType):
         wallet =  Wallet(
             _id=str(wallet._id),
             userId=wallet.userId,
+            cash=wallet.cash,
             name=wallet.name,
             stocks=stocks,
         )

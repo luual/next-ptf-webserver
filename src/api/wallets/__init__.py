@@ -4,16 +4,16 @@ from src.models.Stocks import *
 from src.models.Wallets import *
 from src.utils.Encoder import DataclassEncoder
 import json
+from mongoengine import connect
+from src.config import appConfig
+
 
 wallets_route = Blueprint('wallets', __name__)
 
+connect(db="portfolio-next", host=appConfig.databaseUrl)
 
-@wallets_route.route("wallets/<wallet_id>")
-def get_wallet(wallet_id):
-    print(wallet_id)
-
+def query_wallet(wallet_id) -> Wallet:
     wallet = resolve_wallet(str(wallet_id))
-    print(wallet)
     stocks = []
     for stock_quantity in wallet.stocks:
         print(str(stock_quantity.stock._id))
@@ -28,6 +28,13 @@ def get_wallet(wallet_id):
     wallet =  Wallet(id=str(wallet._id),
                   userId=wallet.userId,
                   name=wallet.name,
+                  cash=wallet.cash,
                   stocks=stocks)
-    print(wallet)
+    return wallet
+
+@wallets_route.route("wallets/<wallet_id>")
+def get_wallet(wallet_id):
+    wallet = query_wallet(wallet_id)
     return json.dumps(wallet, cls=DataclassEncoder)
+
+from .users import *

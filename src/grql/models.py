@@ -27,6 +27,7 @@ class StockQuantity(EmbeddedDocument):
 class WalletModel(Document):
     meta = {'collection': 'Wallets'}
     _id = StringField()
+    cash = DecimalField()
     userId = StringField()
     name = StringField()
     stocks = ListField(EmbeddedDocumentField(StockQuantity))
