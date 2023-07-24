@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class User:
-    id: str
-    lastname: str
+    _id: str
     name: str
+    lastname: str
     userIcon: str

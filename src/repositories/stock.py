@@ -2,6 +2,10 @@
 
 from src.grql.models import StockModel
 from bson import ObjectId
+from mongoengine import connect
+from src.config import appConfig
+
+connect(db="portfolio-next", host=appConfig.databaseUrl)
 
 class StockRepository:
     """Stocks Repository"""

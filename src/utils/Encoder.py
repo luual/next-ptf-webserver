@@ -2,6 +2,7 @@ import dataclasses
 import json
 from decimal import Decimal
 from bson import ObjectId
+from mongoengine.fields import *
 
 class DataclassEncoder(json.JSONEncoder):
     def default(self, o):

@@ -7,13 +7,14 @@ import datetime
 from src.modules.subscription import subscribe_price
 from src.utils.Encoder import DataclassEncoder
 from src.modules.tickers import *
-from src.models.TickerModel import MiniTickerMetadata
-from src.models.Portofolio import Portfolio
+from flask import Blueprint
+# from src.models.TickerModel import MiniTickerMetadata
+# from src.models.Portofolio import Portfolio
 from src.grql.schemas import schema
 from src.grql.models import *
 from graphql_server.flask import GraphQLView
-from src.api.stocks import stock_route
 from src.api import *
+import src.routes
 
 app = Flask(__name__)
 sock = Sock(app)
@@ -21,15 +22,6 @@ CORS(app)
 app.add_url_rule(
     "/graphql", view_func=GraphQLView.as_view("graphql", schema=schema, graphiql=True)
 )
-
-# app.register_blueprint(stock_route, url_prefix="/api")
-app.register_blueprint(wallets_route, url_prefix="/api")
-# from src.routes.user import USER_BLUEPRINT
-# from src.routes.stock import STOCKS_BLUEPRINT
-# app.register_blueprint(USER_BLUEPRINT, url_prefix="/api")
-# app.register_blueprint(STOCKS_BLUEPRINT, url_prefix="/api")
-
-import src.routes
 
 for blueprint in vars(src.routes).values():
     if isinstance(blueprint, Blueprint):
@@ -39,22 +31,6 @@ for blueprint in vars(src.routes).values():
 @app.route("/")
 def hello():
     return "Hello, World!"
-
-@app.route("/users/<id>/portfolio")
-def get_user_portfolio(id):
-    return json.dumps(
-        [Portfolio(id="wqefqweqw-qweqw", name="Portfolio 1", userId=id, tickers=[
-            MiniTickerMetadata("Total", 123),
-            MiniTickerMetadata("CA", 22),
-            MiniTickerMetadata("Air Liquid", 992),
-            MiniTickerMetadata("LVMH", 1248),
-            MiniTickerMetadata("L'Oreal", 57),
-        ]),
-            Portfolio(id="wqfw-qweqw-q123w", name="Portfolio 2", userId=id, tickers=[
-                MiniTickerMetadata("Netflix", 32),
-                MiniTickerMetadata("Meta", 73),
-                MiniTickerMetadata("Google", 35)])], cls=DataclassEncoder)
-
 
 @sock.route("/ticker")
 def send_ticker(ws):
