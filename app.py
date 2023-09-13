@@ -27,6 +27,13 @@ for blueprint in vars(src.routes).values():
     if isinstance(blueprint, Blueprint):
         app.register_blueprint(blueprint, url_prefix="/api")
 
+from src.services.stocks.routes import *
+
+app.register_blueprint(STOCKS_V2_BLUEPRINT, url_prefix="/api/v2")
+
+##
+## Legacy Code
+##
 
 @app.route("/")
 def hello():
@@ -70,3 +77,20 @@ def send_ticker_ohlc(ws):
         currentTime = time.time()
     ws.close()
 
+
+from src.manager.redis import Manager
+
+@app.route("/redis/time")
+def send_redis_time():
+    r = Manager()
+    t = datetime.now().isoformat()
+    r.publish(t)
+    return t
+
+
+@app.route("/redis/time2")
+def send_redis_time2():
+    r = Manager()
+    t = datetime.now().isoformat()
+    r.publish(t, "channel2")
+    return t

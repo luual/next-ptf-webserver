@@ -1,4 +1,5 @@
 from ..grql.models import TransactionModel
+from datetime import datetime
 
 class TransactionRepository:
     """
@@ -17,4 +18,5 @@ class TransactionRepository:
                          stockId=stock_id,
                          quantity=quantity,
                          stockPrice=stock_price,
-                         description=description).save()
+                         description=description,
+                         executedDate=datetime.now).save()
