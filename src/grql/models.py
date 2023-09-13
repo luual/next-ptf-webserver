@@ -1,6 +1,5 @@
 from mongoengine import Document, EmbeddedDocument
 from mongoengine.fields import *
-from graphene import *
 from bson import ObjectId
 
 class UserModel(Document):
@@ -40,3 +39,4 @@ class TransactionModel(Document):
     quantity = DecimalField()
     stockPrice = DecimalField()
     description = StringField()
+    executedDate = DateTimeField()
