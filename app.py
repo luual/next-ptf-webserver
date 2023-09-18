@@ -61,22 +61,28 @@ def send_ticker(ws):
 def send_ticker_ohlc(ws):
     config = ws.receive()
     subRequest = json.loads(config)
-    sub = subscribe_price(subRequest['symbol'])
+    symbol = subRequest['symbol']
+    sub = subscribe_price(symbol)
     ws.send(json.dumps(sub, cls=DataclassEncoder))
     currentTime = time.time()
-    historical = generate_historical_OHLC_ticker_values(subRequest['symbol'])
-    prev_ohlc = historical[-1]
-    for hdata in historical:
-        ws.send(json.dumps(hdata, cls=DataclassEncoder))
+    historical = get_hprice_from_symbol(symbol, None)
+    print(historical)
+    if len(historical) > 0:
+        prev_ohlc = historical[-1]
+        for hdata in historical:
+            ws.send(json.dumps(hdata, cls=DataclassEncoder))
+    else:
+        open, close, high, low = generate_OHLC()
+        prev_ohlc = MiniTickerOHLCResponse(symbol=symbol, time=datetime.now().timestamp(),
+                                           open=open, high=high, low=low, close=close)
     while (currentTime < sub.validTime):
         time.sleep(0.5)
-        ohlc = generate_OHLC_ticker_values(
-            subRequest['symbol'], refValue=prev_ohlc.close, last_date=datetime.fromtimestamp(prev_ohlc.time))
+        ohlc = generate_OHLC_ticker_values(symbol, refValue=prev_ohlc.close, last_date=datetime.fromtimestamp(prev_ohlc.time))
+        add_and_publish_to_redis(symbol=symbol, ohlc=ohlc)
         ws.send(json.dumps(ohlc, cls=DataclassEncoder))
         prev_ohlc = ohlc
         currentTime = time.time()
     ws.close()
-
 
 from src.manager.redis import Manager
 
@@ -94,3 +100,36 @@ def send_redis_time2():
     t = datetime.now().isoformat()
     r.publish(t, "channel2")
     return t
+
+import redis
+
+def get_or_create_last_symbol_tick(symbol: str) -> (datetime, float):
+    r = redis.Redis(host='localhost', port=6379, db=0)
+    ts = r.ts()
+    if r.exists(symbol) > 0:
+        last = ts.get(symbol)
+        return (datetime.fromtimestamp(last[0] / 1000, last[1]))
+    else:
+        ts.create(symbol)
+        return (datetime.now().timestamp(), random.randrange(1,9999))
+
+def get_hprice_from_symbol(symbol: str, depth:int = 10) -> list[MiniTickerOHLCResponse]:
+    r = redis.Redis(host='localhost', port=6379, db=0)
+    ts = r.ts()
+    output = []
+    if r.exists(symbol) > 0:
+        reversed = ts.revrange(symbol, '-', '+', depth)
+        for item in reversed:
+            output.append(MiniTickerOHLCResponse(symbol=symbol,
+                                                time=item[0] / 1_000,
+                                                high=0,
+                                                low=0,
+                                                open=0,
+                                                close=item[1]))
+        output.reverse()
+    return output
+
+def add_and_publish_to_redis(symbol:str, ohlc: MiniTickerOHLCResponse):
+    r = redis.Redis(host='localhost', port=6379, db=0)
+    ts = r.ts()
+    ts.add(symbol, int(ohlc.time * 1_000), ohlc.close)

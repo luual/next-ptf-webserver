@@ -1,6 +1,7 @@
 from src.models.TickerModel import *
 import random
 from datetime import datetime, timedelta
+from src.compute.price import *
 
 
 def generate_historical_ticker_values(ticker_name: str, depth: int = 10) -> list[MiniTickerResponse]:
@@ -42,13 +43,7 @@ def generate_historical_OHLC_ticker_values(ticker_name: str, depth: int = 10) ->
 
 
 def generate_OHLC_ticker_values(ticker_name: str, refValue: float = random.randrange(1, 9999), last_date: datetime = None) -> MiniTickerOHLCResponse:
-
-    open = refValue
-    delta_change = random.randrange(1,20) / 100 * refValue
-    pos_neg = random.randrange(0,2)
-    close = refValue + delta_change if pos_neg == 1 else refValue - delta_change
-    low = min([open, close]) - delta_change * (1 - (random.randrange(1, 20) / 100))
-    high = max([open, close]) + delta_change * (1 + (random.randrange(1, 20) / 100))
+    open, close, high, low = generate_OHLC(refValue=refValue, deviation=10)
     date = datetime.now()
     if last_date is not None:
         date = last_date + timedelta(days=1)
@@ -57,4 +52,3 @@ def generate_OHLC_ticker_values(ticker_name: str, refValue: float = random.randr
                                   open=open,
                                   low=low,
                                   high=high)
-
