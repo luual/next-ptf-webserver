@@ -6,10 +6,9 @@ from mongoengine import connect, DoesNotExist
 from .models import *
 from bson import ObjectId
 from builtins import str
-from src.config import appConfig
+from src.config import config
 
-
-connect(db="portfolio-next", host=appConfig.databaseUrl)
+connect(db="portfolio-next", host=config['mongodb']['host'])
 
 
 class User(MongoengineObjectType):

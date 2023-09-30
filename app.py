@@ -25,6 +25,7 @@ app.add_url_rule(
 
 for blueprint in vars(src.routes).values():
     if isinstance(blueprint, Blueprint):
+        print("register: ", blueprint)
         app.register_blueprint(blueprint, url_prefix="/api")
 
 from src.services.stocks.routes import *
@@ -69,8 +70,8 @@ def send_ticker_ohlc(ws):
     print(historical)
     if len(historical) > 0:
         prev_ohlc = historical[-1]
-        for hdata in historical:
-            ws.send(json.dumps(hdata, cls=DataclassEncoder))
+        # for hdata in historical:
+        #     ws.send(json.dumps(hdata, cls=DataclassEncoder))
     else:
         open, close, high, low = generate_OHLC()
         prev_ohlc = MiniTickerOHLCResponse(symbol=symbol, time=datetime.now().timestamp(),
@@ -108,7 +109,7 @@ def get_or_create_last_symbol_tick(symbol: str) -> (datetime, float):
     ts = r.ts()
     if r.exists(symbol) > 0:
         last = ts.get(symbol)
-        return (datetime.fromtimestamp(last[0] / 1000, last[1]))
+        return (datetime.fromtimestamp(last[0] / 1000), last[1])
     else:
         ts.create(symbol)
         return (datetime.now().timestamp(), random.randrange(1,9999))

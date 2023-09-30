@@ -1,9 +1,8 @@
 import urllib
+import tomli
 
-class AppConfig:
-    databaseUrl: str
+config = {}
+with open('configuration.toml', mode='rb') as f:
+    config = tomli.load(f)
 
-    def __init__(self) -> None:
-        self.databaseUrl = "mongodb+srv://mongo-ptf:" + urllib.parse.quote("NPbVuaH4whukIWC5")+"@cluster0.hhlpnp3.mongodb.net/?retryWrites=true&w=majority"
-
-appConfig = AppConfig()
+config['mongodb']['host'] = config['mongodb']['server'] + urllib.parse.quote(config['mongodb']['password']) + config['mongodb']['cluster']

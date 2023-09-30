@@ -1,3 +1,7 @@
+'''
+Resource module for Stock Service
+'''
+
 from flask_restful import Resource
 from ..repositories import StockRepository
 from src.utils.mongoencoder import MongoEncoder

@@ -3,9 +3,9 @@
 from src.grql.models import StockModel
 from bson import ObjectId
 from mongoengine import connect
-from src.config import appConfig
+from src.config import config
 
-connect(db="portfolio-next", host=appConfig.databaseUrl)
+connect(db="portfolio-next", host=config['mongodb']['host'])
 
 class StockRepository:
     """Stocks Repository"""
