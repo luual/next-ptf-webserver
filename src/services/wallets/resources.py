@@ -1,7 +1,7 @@
 from flask_restful import Resource
 
-from src.grql.models import WalletModel
-from ..repositories import WalletRepository
+from .models import WalletModel
+from .repositories import WalletRepository
 from src.utils.mongoencoder import MongoEncoder
 
 def GenerateWalletObject(wallet: WalletModel) -> dict:

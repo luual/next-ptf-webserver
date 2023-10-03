@@ -2,6 +2,7 @@ import urllib
 import tomli
 
 config = {}
+
 with open('configuration.toml', mode='rb') as f:
     config = tomli.load(f)
 

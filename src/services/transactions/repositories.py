@@ -1,4 +1,4 @@
-from ..grql.models import TransactionModel
+from .models import TransactionModel
 from datetime import datetime
 
 class TransactionRepository:

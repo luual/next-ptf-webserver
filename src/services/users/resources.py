@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from ..repositories import UserRepository
+from .repositories import UserRepository
 from src.utils.mongoencoder import MongoEncoder
 
 class UserResource(Resource):

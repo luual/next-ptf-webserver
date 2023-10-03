@@ -1,6 +1,6 @@
 """ Defines wallet repository """
 
-from ..grql.models import WalletModel, StockQuantity, StockModel
+from .models import WalletModel, StockQuantity, StockModel
 from bson import ObjectId
 
 class WalletRepository:

@@ -8,10 +8,7 @@ from src.modules.subscription import subscribe_price
 from src.utils.Encoder import DataclassEncoder
 from src.modules.tickers import *
 from flask import Blueprint
-# from src.models.TickerModel import MiniTickerMetadata
-# from src.models.Portofolio import Portfolio
 from src.grql.schemas import schema
-from src.grql.models import *
 from graphql_server.flask import GraphQLView
 from src.api import *
 import src.routes

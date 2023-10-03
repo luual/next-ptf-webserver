@@ -3,7 +3,11 @@ import graphene
 from graphene_mongo import MongoengineObjectType, MongoengineConnectionField
 from graphene.relay import Node
 from mongoengine import connect, DoesNotExist
-from .models import *
+from src.services.stocks.models import StockModel
+from src.services.transactions.models import TransactionModel
+from src.services.users.models import UserModel
+from src.services.wallets.models import WalletModel, StockQuantity
+
 from bson import ObjectId
 from builtins import str
 from src.config import config

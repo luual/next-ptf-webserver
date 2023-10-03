@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from ..repositories.transaction import TransactionRepository
+from .repositories import TransactionRepository
 from src.utils.mongoencoder import MongoEncoder
 
 parser = reqparse.RequestParser()

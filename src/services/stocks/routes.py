@@ -1,5 +1,7 @@
 """
 Define the blueprint for stocks
+
+TBD: Not sure of this design
 """
 
 from flask import Blueprint

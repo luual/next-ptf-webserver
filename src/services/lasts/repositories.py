@@ -19,6 +19,8 @@ class LastRepository:
             List[LastPrice]: Returns a list of all LastPrice
         '''
         ts = self._redis.ts()
+        if self._redis.exists(stock) <= 0:
+            return []
         output = []
         try:
             reverse = ts.revrange(stock, '-', '+', depth)
@@ -27,6 +29,6 @@ class LastRepository:
                                         item[0] / 1_000,
                                         item[1]))
             output.reverse()
-        except:
-            return []
+        except Exception as e:
+            raise Exception("Redis Repository: ", e)
         return output

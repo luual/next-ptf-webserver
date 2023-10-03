@@ -2,14 +2,6 @@ from mongoengine import Document, EmbeddedDocument
 from mongoengine.fields import *
 from bson import ObjectId
 
-class UserModel(Document):
-    meta = {'collection': 'Users'}
-    _id = ObjectIdField(default=ObjectId)
-    name = StringField()
-    lastname = StringField()
-    userIcon = StringField()
-
-
 class StockModel(Document):
     meta = {'collection': 'Stocks'}
     _id = ObjectIdField(default=ObjectId)
@@ -30,13 +22,3 @@ class WalletModel(Document):
     userId = StringField()
     name = StringField()
     stocks = ListField(EmbeddedDocumentField(StockQuantity))
-
-class TransactionModel(Document):
-    meta = {'collection': 'Transactions'}
-    _id = ObjectIdField(default=ObjectId)
-    walletId = StringField()
-    stockId = StringField()
-    quantity = DecimalField()
-    stockPrice = DecimalField()
-    description = StringField()
-    executedDate = DateTimeField()

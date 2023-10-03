@@ -1,6 +1,6 @@
 """ Defines user repository """
 
-from ..grql.models import UserModel
+from .models import UserModel
 
 class UserRepository:
     """ User Repository """

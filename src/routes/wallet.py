@@ -5,7 +5,7 @@ Defines the blueprint for wallets
 from flask import Blueprint
 from flask_restful import Api
 
-from ..resources import WalletResource, UserWallerResource
+from src.services.wallets.resources import WalletResource, UserWallerResource
 
 WALLET_BLUEPRINT = Blueprint("wallet", __name__)
 USER_WALLET_BLUEPRINT = Blueprint("user_wallet", __name__)
