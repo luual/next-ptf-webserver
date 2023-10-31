@@ -10,7 +10,6 @@ from src.modules.tickers import *
 from flask import Blueprint
 from src.grql.schemas import schema
 from graphql_server.flask import GraphQLView
-from src.api import *
 import src.routes
 
 app = Flask(__name__)

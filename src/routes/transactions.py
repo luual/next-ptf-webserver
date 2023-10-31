@@ -1,5 +1,5 @@
 """
-Define the bluerpint for transaction
+Define the blueprint for transaction
 """
 
 from flask import Blueprint
